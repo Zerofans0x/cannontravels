@@ -1,0 +1,44 @@
+/*  */
+
+/* app/globals.css */
+@import "tailwindcss";
+
+@theme {
+  --font-mazzard: var(--font-mazzard), sans-serif;
+  --font-thicccboi: var(--font-thicccboi), sans-serif;
+  --font-thickboi: var(--font-thicccboi), sans-serif;
+  --font-sans: var(--font-thicccboi), sans-serif;
+  --color-primary: #DC2626;
+  --color-brand-blue: #DC2626;
+  --color-brand-emerald: #DC2626;
+  --color-brand-red: #DC2626;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --primary: #DC2626;
+  --brand-blue: #DC2626;
+}
+
+@utility text-brand-blue {
+  color: #DC2626;
+}
+
+@utility bg-brand-blue {
+  background-color: #DC2626;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-thicccboi), sans-serif;
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}
