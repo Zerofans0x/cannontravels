@@ -79,7 +79,7 @@ function VerifyEmailForm() {
 
       setSuccessMessage("Account verified successfully! Redirecting...");
       setTimeout(() => {
-        router.push("/flights");
+        router.push("/login");
       }, 1000);
     } catch (error: any) {
       setErrorMessage(error.response?.data?.message || "Invalid or expired verification code.");

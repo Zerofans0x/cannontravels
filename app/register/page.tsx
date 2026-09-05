@@ -87,7 +87,7 @@ export default function RegisterPage() {
         lastName,
         email,
         password,
-        intent: "traveler"
+        intent: "passenger"
       });
 
       router.push(`/verify-email?email=${encodeURIComponent(email)}`);

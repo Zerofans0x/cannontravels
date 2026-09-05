@@ -1,11 +1,11 @@
 
-
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
+import { useAuth } from "@/context/AuthContext";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -14,30 +14,34 @@ interface SidebarProps {
 
 export default function DashboardSidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const userInitial = user?.firstName ? user.firstName.charAt(0).toUpperCase() : "U";
+  const fullName = user ? `${user.firstName} ${user.lastName || ""}`.trim() : "User";
 
   const navSections = [
     {
       title: "CORE",
       items: [
-        { name: "Terminal", href: "/dashboard", icon: "lucide:home" },
-        { name: "Portfolio", href: "/dashboard/portfolio", icon: "charm:book" },
-        { name: "Mandates", href: "/dashboard/mandates", icon: "lucide:graduation-cap" },
+        { name: "Flight Terminal", href: "/dashboard", icon: "lucide:home" },
+        { name: "Global Inventory", href: "/dashboard/flights", icon: "lucide:plane" },
+        { name: "My Bookings & PNR", href: "/dashboard/bookings", icon: "lucide:ticket" },
       ],
     },
     {
-      title: "TELEMETRY",
+      title: "FINANCE & PAYMENTS",
       items: [
-        { name: "Risk Telemetry", href: "/dashboard/risk-telemetry", icon: "lucide:calculator" },
-        { name: "Execution Journal", href: "/dashboard/execution-journal", icon: "bi:journal" },
-        { name: "Macro Calendar", href: "/dashboard/macro-calendar", icon: "lucide:calendar" },
+        { name: "Delegated Payments", href: "/dashboard/delegated", icon: "lucide:link" },
+        { name: "Transaction Journal", href: "/dashboard/execution-journal", icon: "bi:journal" },
+        { name: "Flight Schedule", href: "/dashboard/macro-calendar", icon: "lucide:calendar" },
       ],
     },
     {
-      title: "INTELLIGENCE",
+      title: "OPERATIONS",
       items: [
+        { name: "Airspace Telemetry", href: "/dashboard/risk-telemetry", icon: "lucide:calculator" },
         { name: "Market Intelligence", href: "/dashboard/market-intelligence", icon: "lucide:telescope" },
-        { name: "Strategy Alerts", href: "/dashboard/strategy-alert", icon: "charm:clock-alarm" },
-        { name: "Institutional Outlook", href: "/dashboard/institutional-outlook", icon: "hugeicons:user-group-02" },
+        { name: "Account Settings", href: "/dashboard/settings", icon: "lucide:settings" },
       ],
     },
   ];
@@ -58,40 +62,36 @@ export default function DashboardSidebar({ isOpen, onClose }: SidebarProps) {
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="w-full h-full max-h-[96vh] bg-[#022c22] text-white rounded-[20px] p-4 sm:p-5 flex flex-col justify-between shadow-2xl overflow-y-auto lg:overflow-y-hidden [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10">
+        <div className="w-full h-full max-h-[96vh] bg-[#1a0505] text-white rounded-[20px] p-4 sm:p-5 flex flex-col justify-between shadow-2xl overflow-y-auto lg:overflow-y-hidden [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 border border-red-950/40">
           <div>
             {/* Desktop Top Logo */}
             <div className="hidden lg:flex items-center justify-between pt-1 pb-4 sm:pb-5 px-1">
               <Link href="/dashboard" className="inline-flex items-center gap-2">
-                <Image
-                  src="/images/logo-sidebar.png"
-                  alt="cannontravels"
-                  width={130}
-                  height={28}
-                  className="h-6 sm:h-7 w-auto object-contain brightness-0 invert"
-                />
+                <span className="text-xl font-black text-white tracking-tight flex items-center gap-1">
+                  <span className="text-[#DC2626]">Cannon</span>Travels
+                </span>
               </Link>
             </div>
 
             {/* Mobile Top Profile Card */}
-            <div className="lg:hidden bg-[#064e3b] border border-white/10 rounded-[14px] p-3 flex items-center justify-between gap-2.5 mb-5 shadow-xs">
+            <div className="lg:hidden bg-[#2a0808] border border-red-900/40 rounded-[14px] p-3 flex items-center justify-between gap-2.5 mb-5 shadow-xs">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-[8px] bg-white text-[#022c22] font-medium text-[13px] flex items-center justify-center flex-shrink-0 shadow-xs">
-                  B
+                <div className="w-8 h-8 rounded-[8px] bg-[#DC2626] text-white font-bold text-[13px] flex items-center justify-center flex-shrink-0 shadow-xs">
+                  {userInitial}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12.5px] font-medium text-[#fbbf24] truncate">
-                    John D.
+                  <p className="text-[12.5px] font-medium text-[#fca5a5] truncate">
+                    {fullName}
                   </p>
                   <p className="text-[10px] text-white/50 truncate flex items-center gap-1">
-                    <span>Pro Mandate</span>
+                    <span>Passenger Portal</span>
                     <span>·</span>
                     <Link
-                      href="/pricing"
+                      href="/dashboard/settings"
                       onClick={onClose}
                       className="text-white/70 hover:text-white"
                     >
-                      Scale
+                      Settings
                     </Link>
                   </p>
                 </div>
@@ -112,8 +112,8 @@ export default function DashboardSidebar({ isOpen, onClose }: SidebarProps) {
             <div className="space-y-3.5 sm:space-y-4">
               {navSections.map((section, sIdx) => (
                 <div key={section.title}>
-                  {sIdx > 0 && <div className="h-px bg-white/20 my-3 sm:my-3.5" />}
-                  <p className="text-[10px] tracking-wider text-white/40 mb-1.5 px-3">
+                  {sIdx > 0 && <div className="h-px bg-white/10 my-3 sm:my-3.5" />}
+                  <p className="text-[10px] tracking-wider text-white/40 mb-1.5 px-3 font-mono">
                     {section.title}
                   </p>
                   <nav className="space-y-0.5 sm:space-y-1">
@@ -129,7 +129,7 @@ export default function DashboardSidebar({ isOpen, onClose }: SidebarProps) {
                           onClick={onClose}
                           className={`flex items-center gap-3 px-3.5 py-2.5 rounded-[12px] text-[13px] font-medium transition-all ${
                             isActive
-                              ? "bg-[#059669] text-white shadow-md shadow-emerald-500/20"
+                              ? "bg-[#DC2626] text-white shadow-md shadow-red-600/20"
                               : "text-white/70 hover:text-white hover:bg-white/5"
                           }`}
                         >
@@ -152,21 +152,21 @@ export default function DashboardSidebar({ isOpen, onClose }: SidebarProps) {
           {/* User Profile Footer (Desktop Only) */}
           <div className="hidden lg:block pt-4 mt-6 border-t border-white/10">
             <div className="flex items-center gap-3 px-1">
-              <div className="w-8 h-8 rounded-[8px] bg-white text-[#022c22] font-medium text-[13px] flex items-center justify-center flex-shrink-0 shadow-xs">
-                B
+              <div className="w-8 h-8 rounded-[8px] bg-[#DC2626] text-white font-bold text-[13px] flex items-center justify-center flex-shrink-0 shadow-xs">
+                {userInitial}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[12.5px] font-medium text-[#fbbf24] truncate">
-                  John D.
+                <p className="text-[12.5px] font-medium text-[#fca5a5] truncate">
+                  {fullName}
                 </p>
                 <p className="text-[10px] text-white/50 truncate flex items-center gap-1">
-                  <span>Pro Mandate</span>
+                  <span>Passenger Portal</span>
                   <span>·</span>
                   <Link
-                    href="/pricing"
+                    href="/dashboard/settings"
                     className="text-white/70 hover:text-white"
                   >
-                    Scale
+                    Settings
                   </Link>
                 </p>
               </div>

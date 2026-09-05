@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const completeOnboarding = async (onboardingData: any) => {
-    const { data } = await api.post("/psyche/onboarding", onboardingData);
+    const { data } = await api.post("/cannon/onboarding", onboardingData);
     if (data.isOnboarded) {
       router.push("/dashboard");
     }
