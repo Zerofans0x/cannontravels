@@ -7,7 +7,8 @@ import { Icon } from "@iconify/react";
 import { io, Socket } from "socket.io-client";
 import { api } from "@/lib/api";
 
-const SOCKET_URL = process.env.SOCKET_URL || "http://localhost:5001";
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://cannontravels-backend.onrender.com";
+
 
 export default function PublicFlightTrackingPage() {
   const params = useParams();
