@@ -84,7 +84,7 @@ export default function OnboardingPage() {
         };
 
         await completeOnboarding(payload);
-        router.push("/flights");
+        router.push("/dashboard");
       } catch (error: any) {
         setErrorMessage(error.response?.data?.message || "Failed to finalize your travel profile.");
         setIsLoading(false);

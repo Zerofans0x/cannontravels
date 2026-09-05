@@ -128,26 +128,6 @@ export default function RegisterPage() {
           </Link>
         </p>
       </div>
-
-      {/* <div className="mt-3.5 sm:mt-4">
-        <button
-          type="button"
-          className="w-full py-2.5 sm:py-3.5 px-5 bg-slate-50 hover:bg-slate-100 active:scale-[0.99] text-slate-800 font-bold text-[12.5px] sm:text-[14px] rounded-full transition-all flex items-center justify-center gap-2.5 cursor-pointer border border-slate-200"
-        >
-          <svg
-            className="w-4.5 h-4.5 text-black flex-shrink-0"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            stroke="currentColor"
-            strokeWidth="0.8"
-            strokeLinejoin="round"
-          >
-            <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
-          </svg>
-          <span>Sign up with Google</span>
-        </button>
-      </div> */}
-
       <div className="flex items-center gap-3 my-3.5 sm:my-5">
         {/* <div className="flex-1 h-px bg-slate-200" />
         <span className="text-[11px] sm:text-[12px] text-slate-400 font-bold">or with email</span>

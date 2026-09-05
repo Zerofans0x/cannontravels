@@ -31,7 +31,7 @@ export default function Cta() {
           {/* Mobile Top Illustration */}
           <div className="block sm:hidden w-full pt-8 pb-4 flex items-center justify-center relative z-10">
             <Image
-              src="/images/cta-flight-mobile.png"
+              src="/images/home-cta-flight.png"
               alt="Book your next journey"
               width={360}
               height={360}

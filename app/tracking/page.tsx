@@ -17,7 +17,8 @@ export default function TrackingPage() {
     e.preventDefault();
     const cleanCode = trackingCode.trim().toUpperCase();
     if (cleanCode) {
-      router.push(`/dashboard/track/${cleanCode}`);
+      // ✅ Opens directly in the unauthenticated tracking view
+      router.push(`/track/${cleanCode}`);
     }
   };
 

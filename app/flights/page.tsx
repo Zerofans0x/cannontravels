@@ -15,15 +15,13 @@ export default function FlightsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrigin, setSelectedOrigin] = useState("");
   const [selectedDest, setSelectedDest] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchFlights = async () => {
       try {
-        const response = await api.get("/flights"); // Adjust to your backend endpoint for flight listings
+        const response = await api.get("/flights");
         setFlightsList(response.data.data || []);
       } catch (err) {
-        // Fallback default inventory if backend listing route is purely simulated
         setFlightsList([
           { _id: "f1", flightNumber: "AF 022", airline: "Air France", origin: "CDG", destination: "JFK", duration: "08h 15m", amount: 850, currency: "USD", type: "Direct" },
           { _id: "f2", flightNumber: "BA 177", airline: "British Airways", origin: "LHR", destination: "DXB", duration: "07h 20m", amount: 720, currency: "USD", type: "Direct" },
@@ -38,23 +36,11 @@ export default function FlightsPage() {
     fetchFlights();
   }, []);
 
-  const handleBookFlight = async (flight: any) => {
-    try {
-      // Create a booking record in the backend and redirect to payment/ticket view
-      const response = await api.post("/bookings", {
-        flightNumber: flight.flightNumber,
-        origin: flight.origin || selectedOrigin || "CDG",
-        destination: flight.destination || selectedDest || "JFK",
-        amount: flight.amount || 850,
-        currency: flight.currency || "USD",
-        departureTime: new Date(Date.now() + 86400000 * 2).toISOString() // 2 days from now
-      });
-
-      const bookingId = response.data.data._id;
-      router.push(`/dashboard/bookings/${bookingId}`);
-    } catch (err: any) {
-      setErrorMessage(err.response?.data?.message || "Failed to initialize flight booking.");
-    }
+  const handleBookAndPay = (flight: any) => {
+    // Save selected flight details to sessionStorage so it can be booked right after registration/login
+    sessionStorage.setItem("pending_flight", JSON.stringify(flight));
+    // Redirect unauthenticated user to register page
+    router.push("/register");
   };
 
   const filteredFlights = flightsList.filter(f => {
@@ -68,7 +54,6 @@ export default function FlightsPage() {
       <Navbar />
 
       <main className="flex-1 max-w-[1260px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-12 space-y-12">
-        {/* Header */}
         <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3 max-w-2xl mx-auto">
           <span className="text-[#DC2626] font-mono text-xs uppercase tracking-widest px-3.5 py-1.5 bg-red-50 rounded-full border border-red-100 font-bold inline-block">
             CannonTravels Global Inventory
@@ -77,17 +62,10 @@ export default function FlightsPage() {
             Explore & Book <span className="text-[#DC2626]">Global Flights</span>
           </h1>
           <p className="text-slate-600 text-sm sm:text-base font-medium">
-            Search top European and international routes. Choose self-checkout or generate a secure delegated payment link for a third-party sponsor.
+            Search top European and international routes. Register or sign in to secure your flight booking and activate airspace telemetry.
           </p>
         </motion.div>
 
-        {errorMessage && (
-          <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 text-xs text-center font-medium">
-            {errorMessage}
-          </div>
-        )}
-
-        {/* Search Filter Bar */}
         <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Origin Hub</label>
@@ -121,7 +99,6 @@ export default function FlightsPage() {
 
           <div className="flex items-end h-full pt-5 md:pt-0">
             <button 
-              onClick={() => {}} 
               className="w-full py-3.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md shadow-red-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Icon icon="solar:magnifer-bold" className="w-4 h-4" />
@@ -130,7 +107,6 @@ export default function FlightsPage() {
           </div>
         </div>
 
-        {/* Flights List */}
         <div className="space-y-4">
           {isLoading ? (
             <div className="py-20 text-center">
@@ -176,7 +152,7 @@ export default function FlightsPage() {
                       <span className="text-[10px] text-slate-400 font-mono">USD</span>
                     </div>
                     <button
-                      onClick={() => handleBookFlight(flight)}
+                      onClick={() => handleBookAndPay(flight)}
                       className="px-5 py-3 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold text-xs uppercase tracking-wider rounded-2xl shadow-md shadow-red-600/20 transition-all cursor-pointer whitespace-nowrap"
                     >
                       Book & Pay →
@@ -193,3 +169,5 @@ export default function FlightsPage() {
     </div>
   );
 }
+
+
