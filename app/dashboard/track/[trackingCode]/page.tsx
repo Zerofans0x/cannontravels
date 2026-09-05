@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -7,14 +9,15 @@ import { Icon } from "@iconify/react";
 import { io, Socket } from "socket.io-client";
 import { api } from "@/lib/api";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+const SOCKET_URL = "http://localhost:5001";
 
 export default function LiveFlightTrackingPage() {
   const params = useParams();
   const trackingCode = params.trackingCode as string;
 
   const [flightData, setFlightData] = useState<any>(null);
-  const [telemetry, setTelemetry] = useState({ lat: 6.5244, lng: 3.3792, speed: 0, heading: 0 });
+  const [telemetry, setTelemetry] = useState({ lat: 6.5244, lng: 3.3792, speed: 480, heading: 90 });
+  const [pathHistory, setPathHistory] = useState<{ lat: number; lng: number }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,7 +30,9 @@ export default function LiveFlightTrackingPage() {
         const response = await api.get(`/flights/telemetry/${trackingCode}`);
         setFlightData(response.data.data);
         if (response.data.data.liveLocation) {
-          setTelemetry(response.data.data.liveLocation);
+          const initialLoc = response.data.data.liveLocation;
+          setTelemetry(initialLoc);
+          setPathHistory([{ lat: initialLoc.lat, lng: initialLoc.lng }]);
         }
       } catch (err: any) {
         setErrorMessage(err.response?.data?.message || "Could not establish flight radar telemetry.");
@@ -39,10 +44,9 @@ export default function LiveFlightTrackingPage() {
     if (trackingCode) {
       fetchInitialData();
 
-      // Connect to Socket.io backend
       socket = io(SOCKET_URL, {
-        withCredentials: true,
-        transports: ['websocket', 'polling']
+        transports: ['websocket', 'polling'],
+        withCredentials: true
       });
 
       socket.on("connect", () => {
@@ -51,12 +55,15 @@ export default function LiveFlightTrackingPage() {
       });
 
       socket.on("passenger_location", (data) => {
+        const newPoint = { lat: data.lat, lng: data.lng };
         setTelemetry({
           lat: data.lat,
           lng: data.lng,
           speed: data.speed || 480,
           heading: data.heading || 90
         });
+        // Keep a rolling trail of coordinates to show movement path
+        setPathHistory(prev => [...prev.slice(-15), newPoint]);
       });
 
       socket.on("disconnect", () => {
@@ -100,7 +107,7 @@ export default function LiveFlightTrackingPage() {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-mono font-bold text-[#DC2626] bg-red-50 px-3 py-1 rounded-full border border-red-100 uppercase">
-              Live Radar Tracking
+              Live Global Radar
             </span>
             <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${
               isConnected ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-amber-50 text-amber-700 border border-amber-200"
@@ -119,7 +126,7 @@ export default function LiveFlightTrackingPage() {
         </Link>
       </div>
 
-      {/* Main Grid: Telemetry Stats & Live Map Interface */}
+      {/* Main Grid: Telemetry Stats & Live Globe Interface */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Left Column: Live Telemetry Metrics */}
@@ -161,43 +168,64 @@ export default function LiveFlightTrackingPage() {
                 <span className="text-slate-500">PNR Reference</span>
                 <span className="font-mono font-bold text-slate-900">{flightData.bookingReference}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Departure</span>
-                <span className="font-medium text-slate-900">{new Date(flightData.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Responsive Live Radar Map View */}
-        <div className="lg:col-span-3 bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-lg relative min-h-[450px] lg:min-h-[550px] flex items-center justify-center p-6">
-          {/* Simulated Tactical Radar Grid Background */}
-          <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
+        {/* Right Column: Globe-Style Tactical Radar Map View */}
+        <div className="lg:col-span-3 bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-xl relative min-h-[480px] lg:min-h-[580px] flex items-center justify-center p-6">
           
+          {/* Globe Atmosphere Radial Gradient Glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black pointer-events-none"></div>
+
+          {/* Rotating Globe Grid Lines & Radar Sweep Ring */}
+          <div className="absolute w-[450px] h-[450px] sm:w-[550px] sm:h-[550px] rounded-full border border-slate-800/80 flex items-center justify-center pointer-events-none">
+            <div className="absolute inset-0 rounded-full border border-dashed border-red-600/20 animate-[spin_60s_linear_infinite]"></div>
+            <div className="absolute w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] rounded-full border border-slate-700/50"></div>
+            <div className="absolute w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] rounded-full border border-slate-700/40"></div>
+            
+            {/* Crosshairs */}
+            <div className="absolute w-full h-px bg-slate-800/60"></div>
+            <div className="absolute h-full w-px bg-slate-800/60"></div>
+          </div>
+
+          {/* Radar Sweep Beam Effect */}
+          <div className="absolute w-[500px] h-[500px] rounded-full pointer-events-none overflow-hidden opacity-30 animate-[spin_8s_linear_infinite]">
+            <div className="w-1/2 h-1/2 bg-gradient-to-tr from-red-600/40 to-transparent origin-bottom-right"></div>
+          </div>
+
+          {/* Trajectory / Flight Path Indicator Dots */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-72 h-72 sm:w-96 sm:h-96 rounded-full border border-red-600/20 animate-ping absolute"></div>
-            <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-full border border-red-600/30 absolute"></div>
-            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border border-red-600/40 absolute"></div>
+            {pathHistory.map((pt, idx) => (
+              <div 
+                key={idx}
+                className="absolute w-2 h-2 rounded-full bg-red-500/40 transition-all duration-500"
+                style={{
+                  transform: `translate(${(pt.lng - telemetry.lng) * 35}px, ${(telemetry.lat - pt.lat) * 35}px)`
+                }}
+              />
+            ))}
           </div>
 
           {/* Airplane Marker Positioned via Live Coordinates */}
           <div className="relative z-10 flex flex-col items-center space-y-3 text-center">
             <div 
-              className="w-16 h-16 rounded-full bg-red-600/20 border-2 border-[#DC2626] flex items-center justify-center shadow-2xl shadow-red-600/50 transition-all duration-700"
+              className="w-16 h-16 rounded-full bg-red-600/20 border-2 border-[#DC2626] flex items-center justify-center shadow-2xl shadow-red-600/60 transition-all duration-700 animate-pulse"
               style={{ transform: `rotate(${telemetry.heading}deg)` }}
             >
-              <Icon icon="lucide:plane" className="w-8 h-8 text-white" />
+              <Icon icon="lucide:plane" className="w-8 h-8 text-white drop-shadow-[0_0_8px_rgba(220,38,38,0.8)]" />
             </div>
 
-            <div className="bg-slate-900/90 backdrop-blur-md border border-slate-800 px-4 py-2 rounded-2xl shadow-xl">
+            <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-4 py-2.5 rounded-2xl shadow-2xl">
               <p className="text-xs font-black text-white">{flightData.flightNumber} ({flightData.origin} → {flightData.destination})</p>
-              <p className="text-[10px] font-mono text-emerald-400 mt-0.5">ALT: 36,000 FT • {telemetry.speed} KTS</p>
+              <p className="text-[10px] font-mono text-emerald-400 mt-0.5">ALT: 36,000 FT • {telemetry.speed} KTS • LIVE GLOBE RADAR</p>
             </div>
           </div>
 
-          {/* Radar HUD Stamp */}
-          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 px-3 py-1.5 rounded-xl text-[11px] font-mono text-slate-300">
-            RADAR: ACTIVE STREAM // SECURE PNR
+          {/* Tactical HUD Header Stamp */}
+          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 px-3 py-1.5 rounded-xl text-[11px] font-mono text-slate-300 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            <span>TACTICAL GLOBE FEED // SECURE PNR</span>
           </div>
         </div>
 
