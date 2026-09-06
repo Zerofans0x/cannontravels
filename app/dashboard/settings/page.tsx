@@ -143,7 +143,7 @@ export default function SettingsPage() {
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:border-[#DC2626]"
                 />
               </div>
-
+{/* 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5 font-mono">Email Address</label>
                 <input
@@ -153,8 +153,16 @@ export default function SettingsPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:border-[#DC2626]"
                 />
-              </div>
-
+              </div> */}
+<div>
+  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5 font-mono">Email Address (Locked)</label>
+  <input
+    type="email"
+    disabled
+    value={email}
+    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-100 text-sm text-slate-500 cursor-not-allowed focus:outline-none"
+  />
+</div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5 font-mono">Phone Number</label>
                 <input
