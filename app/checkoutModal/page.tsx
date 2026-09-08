@@ -1,7 +1,14 @@
 'use client';
 import { useState } from 'react';
 
-export default function CheckoutModal({ bookingId, amount, currency = 'USD' }) {
+// 1. Define the TypeScript interface for your props
+interface CheckoutModalProps {
+    bookingId: string;
+    amount: number | string;
+    currency?: string;
+}
+
+export default function CheckoutModal({ bookingId, amount, currency = 'USD' }: CheckoutModalProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -27,12 +34,18 @@ export default function CheckoutModal({ bookingId, amount, currency = 'USD' }) {
                 throw new Error(data.message || 'Failed to initialize payment');
             }
 
-            // Redirect user to the gateway checkout link returned by your backend
-            if (data.invoice?.checkoutLink) {
-                window.location.href = data.invoice.checkoutLink;
+            // Extract checkout link matching your backend response structure
+            const checkoutUrl = data.invoice?.checkoutLink || data.checkoutUrl;
+
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            } else {
+                throw new Error('Checkout link not found in response');
             }
-        } catch (err) {
-            setError(err.message);
+            
+        // 2. Explicitly type 'err' as 'any' (or 'unknown') to satisfy strict mode
+        } catch (err: any) {
+            setError(err.message || 'An unexpected error occurred');
         } finally {
             setLoading(false);
         }
